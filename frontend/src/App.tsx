@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
-import ChatPanel from "./components/ChatPanel.tsx";
-import { Message } from "./types.ts";
+import ChatPanel from "./components/ChatPanel";
+import type { Message } from "./types";
 
 const API_URL = "http://localhost:8000/chat";
 
@@ -86,3 +86,4 @@ const App = () => {
 };
 
 export default App;
+
