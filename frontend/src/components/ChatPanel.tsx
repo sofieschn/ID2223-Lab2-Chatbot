@@ -27,10 +27,10 @@ const ChatPanel = ({ messages, onSend, loading, error }: ChatPanelProps) => {
       <header className="chat-panel__header">
         <div>
           <p className="eyebrow">ID2223 Assistant</p>
-          <h1>Educational Stock Chatbot</h1>
+          <h1>KTH Chatbot</h1>
           <p className="subtitle">
-            Ask about companies, ratios, or investing theory. Responses are for
-            learning only.
+            Ask questions about anything you're curious
+            about.
           </p>
         </div>
         <div className="pill">{loading ? "Thinking…" : "Ready"}</div>
@@ -42,7 +42,7 @@ const ChatPanel = ({ messages, onSend, loading, error }: ChatPanelProps) => {
         ))}
         {messages.length === 0 && (
           <div className="empty-state">
-            <p>Try asking: “Compare Tesla and Ford long-term outlook.”</p>
+            <p>Try asking: “What is overfitting in machine learning?”</p>
           </div>
         )}
       </section>
@@ -53,7 +53,7 @@ const ChatPanel = ({ messages, onSend, loading, error }: ChatPanelProps) => {
         <textarea
           ref={inputRef}
           rows={3}
-          placeholder="Ask anything about stocks or financial concepts…"
+          placeholder="Ask anything about the course or general topics…"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           disabled={loading}

@@ -9,7 +9,12 @@ class LLM_model():
             n_ctx=n_ctx,     # context legth
             n_threads=n_threads     # adjusted according to CPU cores
         )
-        self.history_str = ''
+        self.history_str = (
+            "System: You are a friendly KTH chatbot. "
+            "Answer the user's question directly in a conversational way. "
+            "Do NOT summarize what the user said back to them, "
+            "just respond naturally.\n"
+        )
 
     # Let's develop a simple chat function
     def generate_chat_history(self,history_chat_gradio):
@@ -68,8 +73,8 @@ def test_lora():
 if __name__ == '__main__':
     #test_lora()
     
-    model_path = "models/Llama-3.2-1B-Instruct-Q4_1.gguf"
-    lora_path = "models/lora_adapter_q8_0.gguf"
+    model_path = "../models/Llama-3.2-1B-Instruct-Q4_1.gguf"
+    lora_path = "../models/lora_adapter_q8_0.gguf"
     model = LLM_model(model_path, lora_path)
     while True:
         message = input('Insert your message: ')

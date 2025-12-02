@@ -6,17 +6,35 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-# Allow importing chatbot.py from the project root
 import os
 import sys
 
+# Allow importing chatbot.py / chatbot-hf.py from the project root
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 if ROOT_DIR not in sys.path:
     sys.path.append(ROOT_DIR)
 
-from chatbot import LLM_model  # type: ignore
 
-app = FastAPI(title="ID2223 Local LLaMA Chatbot API", version="0.1.0")
+def create_llm():
+    """
+    Factory for the LLM model.
+
+    Use env var LLM_BACKEND to switch:
+      - "local" (default)  -> chatbot.LLM_model (lokala .gguf-filer)
+      - "hf"               -> chatbot-hf.LLM_model (laddar från Hugging Face)
+    """
+    backend = os.getenv("LLM_BACKEND", "local").lower()
+    if backend == "hf":
+        from chatbot_hf import LLM_model as HFModel  # type: ignore
+
+        return HFModel()
+    else:
+        from chatbot import LLM_model as LocalModel  # type: ignore
+
+        return LocalModel()
+
+
+app = FastAPI(title="ID2223 LLaMA Chatbot API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,10 +61,7 @@ class ChatResponse(BaseModel):
 
 
 # Single shared model instance (keeps its own history_str)
-llm = LLM_model(
-    model_path="models/Llama-3.2-1B-Instruct-Q4_1.gguf",
-    lora_path="models/lora_adapter_q8_0.gguf",
-)
+llm = create_llm()
 
 
 @app.get("/health")

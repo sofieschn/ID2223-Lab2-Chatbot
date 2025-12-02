@@ -22,7 +22,7 @@ const App = () => {
   const [messages, setMessages] = useState<Message[]>([
     buildMessage(
       "assistant",
-      "Hi! I'm your educational stock assistant. Ask me about companies, ratios, or investing basics."
+      "Hi! I'm your assistant. Ask me about anything you need help with and I will try to help out."
     )
   ]);
   const [loading, setLoading] = useState(false);
