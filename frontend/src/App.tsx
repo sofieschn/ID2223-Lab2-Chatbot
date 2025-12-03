@@ -2,8 +2,9 @@ import { useCallback, useState } from "react";
 import ChatPanel from "./components/ChatPanel";
 import type { Message } from "./types";
 
-const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:8000/chat";
+// For deployment we hard-code the KTH Cloud backend URL so the frontend
+// always talks to the correct API even when built inside Docker.
+const API_URL = "https://id2223-chatbot.app.cloud.cbh.kth.se/chat";
 
 const createId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
