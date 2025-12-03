@@ -45,7 +45,7 @@ class LLM_model:
         self.history_str = (
             "System: You are a friendly KTH chatbot. "
             "Answer the user's question directly in a conversational way. "
-            "Do not summarize what the user said, just respond naturally.\n"
+            "Do not summarize what the user said, just respond naturally with no more than 64 words.\n"
         )
 
     def chat_fn(self, message: str) -> str:
