@@ -11,14 +11,16 @@ class ModelConfig:
     repo_id: str = "SofieSchn/kth-llama-lora"
     base_filename: str = "Llama-3.2-1B-Instruct-Q4_1.gguf"
     lora_filename: str = "lora_adapter_q8_0.gguf"
-    n_ctx: int = 2048
+    # Smaller context & slightly more threads to be faster in constrained envs
+    n_ctx: int = 1024
     n_threads: int = 4
 
 
 class LLM_model:
     """
-    Same interface as the local LLM_model in chatbot.py, but loads weights
-    from Hugging Face Hub using hf_hub_download.
+    Hugging Face-backed variant of LLM_model.
+    Loads GGUF weights from SofieSchn/kth-llama-lora at startup and
+    maintains its own conversation history string.
     """
 
     def __init__(self, config: ModelConfig | None = None):
@@ -51,7 +53,8 @@ class LLM_model:
         self.history_str += f"User: {message}\nAssistant: "
         output = self.llm(
             self.history_str,
-            max_tokens=256,
+            # Keep responses short to avoid timeouts on limited CPUs
+            max_tokens=64,
             temperature=0.7,
             stop=["User:", "Assistant:"],
         )
@@ -59,11 +62,4 @@ class LLM_model:
         self.history_str += f"{answer}\n"
         return answer
 
-
-if __name__ == "__main__":
-    # Simple manual test when running `python chatbot-hf.py`
-    model = LLM_model()
-    while True:
-        msg = input("User: ")
-        print("Assistant:", model.chat_fn(msg))
 

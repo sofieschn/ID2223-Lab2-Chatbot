@@ -80,4 +80,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     ]
 
     return ChatResponse(answer=answer, history=updated_history)
-
+    
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}

@@ -2,7 +2,8 @@ import { useCallback, useState } from "react";
 import ChatPanel from "./components/ChatPanel";
 import type { Message } from "./types";
 
-const API_URL = "http://localhost:8000/chat";
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8000/chat";
 
 const createId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
