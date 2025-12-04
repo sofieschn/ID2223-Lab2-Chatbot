@@ -2,7 +2,7 @@ from llama_cpp import Llama
 import gradio as gr
 
 class LLM_model():
-    def __init__(self, model_path,lora_path=None, n_ctx=2048, n_threads=4, save_hist=True):
+    def __init__(self, model_path,lora_path=None, n_ctx=2048, n_threads=4, save_hist=False):
         self.llm = Llama(
             model_path = model_path,
             lora_path=lora_path,
@@ -30,7 +30,7 @@ class LLM_model():
         # Build a conversation prompt from history
         #conversation = generate_chat_history(history)
         self.history_str += f'User: {message}\nAssistant: '
-        output = self.llm(self.history_str, max_tokens=256, temperature=0.7,
+        output = self.llm(self.history_str, max_tokens=500, temperature=0.7,
                     stop=['User:','Assistant:'])
         answer = output['choices'][0]['text'].strip()
         if self.save_hist:

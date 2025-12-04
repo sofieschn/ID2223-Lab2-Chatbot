@@ -42,11 +42,13 @@ class LLM_model:
             n_threads=self.config.n_threads,
         )
 
-        self.history_str = (
+        # Store system prompt separately so we can reset history when needed
+        self._system_prompt = (
             "System: You are a friendly KTH chatbot. "
             "Answer the user's question directly in a conversational way. "
             "Do not summarize what the user said, just respond naturally with no more than 64 words.\n"
         )
+        self.history_str = self._system_prompt
 
     def chat_fn(self, message: str) -> str:
         """Generate a reply given the latest user message."""
@@ -61,5 +63,9 @@ class LLM_model:
         answer = output["choices"][0]["text"].strip()
         self.history_str += f"{answer}\n"
         return answer
+
+    def reset_history(self) -> None:
+        """Reset the in-memory conversation history to just the system prompt."""
+        self.history_str = self._system_prompt
 
 
