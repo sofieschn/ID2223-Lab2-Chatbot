@@ -67,7 +67,45 @@ class ChatResponse(BaseModel):
     history: List[HistoryItem]
 
 
-# Single shared model instance (keeps its own history_str)
+def _build_last_turn_prompt(system_prompt: str, history: List[HistoryItem], message: str) -> str:
+    """
+    Build a minimal prompt that only includes the *last* user/assistant pair
+    plus the latest user message.
+
+    This keeps some conversational context without letting the prompt grow
+    unbounded and become very slow.
+    """
+    prompt = system_prompt
+
+    # history sent from the frontend already includes the latest user message,
+    # so we look at everything *before* that for previous turns
+    prior = history[:-1] if history else []
+
+    # Find last assistant and the user immediately before it (if any)
+    last_assistant_idx = None
+    for i in range(len(prior) - 1, -1, -1):
+        if prior[i].role == "assistant":
+            last_assistant_idx = i
+            break
+
+    if last_assistant_idx is not None:
+        # Find the closest preceding user message
+        last_user_idx = None
+        for j in range(last_assistant_idx - 1, -1, -1):
+            if prior[j].role == "user":
+                last_user_idx = j
+                break
+
+        if last_user_idx is not None:
+            prompt += f"User: {prior[last_user_idx].content}\n"
+        prompt += f"Assistant: {prior[last_assistant_idx].content}\n"
+
+    # Always append the latest user message (the one from the current request)
+    prompt += f"User: {message}\nAssistant: "
+    return prompt
+
+
+# Single shared model instance
 llm = create_llm()
 
 
@@ -78,8 +116,31 @@ async def health() -> dict:
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
-    # Let the LLaMA model handle conversational history via its internal history_str
-    answer = llm.chat_fn(request.message)
+    backend = os.getenv("LLM_BACKEND", "local").lower()
+
+    # For the HF backend we keep prompts short by only including the last
+    # user/assistant pair plus the latest user message, and we bypass any
+    # internal history the model wrapper might keep.
+    if backend == "hf" and hasattr(llm, "llm"):
+        # Import here to avoid circular imports at module load time
+        from chatbot_hf import LLM_model as HFModel  # type: ignore
+
+        if isinstance(llm, HFModel):
+            system_prompt = llm._system_prompt  # type: ignore[attr-defined]
+            prompt = _build_last_turn_prompt(system_prompt, request.history, request.message)
+            output = llm.llm(  # type: ignore[attr-defined]
+                prompt,
+                max_tokens=64,
+                temperature=0.7,
+                stop=["User:", "Assistant:"],
+            )
+            answer = output["choices"][0]["text"].strip()
+        else:
+            # Fallback if types don't match for some reason
+            answer = llm.chat_fn(request.message)
+    else:
+        # Local backend or any other implementation: let the model handle history
+        answer = llm.chat_fn(request.message)
 
     updated_history = request.history + [
         HistoryItem(role="user", content=request.message),
