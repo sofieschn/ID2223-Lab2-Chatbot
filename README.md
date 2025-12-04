@@ -188,9 +188,10 @@ There were threee main hyperparameters that we tested out:
 - Lora attention dimension: Adds more dimensions to the trainable matrices of Lora. A high one will have more capacity but will defeat the purpose of low-rank matrices of finetunning. A low number of dimensions would underfit.
 - Lora dropout: defines the dropout number of the Lora brances that would get dropped, it's a regularization method. A high value will lead to more regularization, slow convergence and prevents forgetting. A low one lads to a fast learning but can overfit in small datasets.
 
-Basic configuration:
 1) lora alpha = 16, r (lora attention dimensions) = 16, lora dropout = 0 (optimized for the notebook)
 2) lora alpha = 32, r (lora attention dimensions) = 16, lora dropout = 0 (optimized for the notebook)
 3) lora alpha = 16, r (lora attention dimensions) = 32, lora dropout = 0 (optimized for the notebook)
 4) lora alpha = 32, r (lora attention dimensions) = 32, lora dropout = 0 (optimized for the notebook)
 4) lora alpha & r (lora attention dimensions) on the best model, lora dropout = 0.05 (optimized for the notebook)
+
+Best one: 1) it shows improvement without forcing answers or repeating same patterns during the conversation
