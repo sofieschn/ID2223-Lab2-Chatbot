@@ -2,9 +2,19 @@ import { useCallback, useState } from "react";
 import ChatPanel from "./components/ChatPanel";
 import type { Message } from "./types";
 
-// For deployment we hard-code the KTH Cloud backend URL so the frontend
-// always talks to the correct API even when built inside Docker.
-const API_URL = "https://id2223-chatbot.app.cloud.cbh.kth.se/chat";
+// Enkel toggle för frontend:
+// - Sätt USE_LOCAL_BACKEND = true när du vill prata med din lokala FastAPI-backend
+// - Sätt USE_LOCAL_BACKEND = false (eller låt den vara) när du vill använda deployad backend
+const USE_LOCAL_BACKEND = true;
+
+// Backend-URL prioriteras så här:
+// 1) Om USE_LOCAL_BACKEND = true  -> http://localhost:8000/chat
+// 2) Annars, om VITE_API_URL är satt -> den URL:en
+// 3) Annars fallback -> KTH Cloud-URL
+const API_URL =
+  (USE_LOCAL_BACKEND && "http://localhost:8000/chat") ||
+  import.meta.env.VITE_API_URL ||
+  "https://id2223-chatbot.app.cloud.cbh.kth.se/chat";
 
 const createId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {

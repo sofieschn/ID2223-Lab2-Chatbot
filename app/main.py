@@ -29,9 +29,15 @@ def create_llm():
 
         return HFModel()
     else:
+        # Local GGUF backend using chatbot.LLM_model.
+        # We explicitly disable history here (save_hist=False) to match the
+        # fast, stateless behavior used in Test.ipynb.
         from chatbot import LLM_model as LocalModel  # type: ignore
 
-        return LocalModel()
+        model_path = os.path.join(ROOT_DIR, "models", "Llama-3.2-1B-Instruct-Q4_1.gguf")
+        lora_path = os.path.join(ROOT_DIR, "models", "lora_adapter_q8_0.gguf")
+
+        return LocalModel(model_path=model_path, lora_path=lora_path, save_hist=False)
 
 
 app = FastAPI(title="ID2223 LLaMA Chatbot API", version="0.1.0")
