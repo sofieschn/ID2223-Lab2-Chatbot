@@ -3,3 +3,5 @@ timestamp,model_name,avg_score,num_questions
 2025-12-03T17:05:44,model_lora_q8_0_r_32,2.562,16
 2025-12-03T17:18:34,model_lora_q8_0,3.062,16
 2025-12-03T17:31:02,model_lora_q8_0_r_32,2.812,16
+2025-12-04T08:59:15,model_lora_q8_0_r_32,2.562,16
+2025-12-04T09:15:37,model_lora_q8_0,2.812,16

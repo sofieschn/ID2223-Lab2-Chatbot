@@ -162,3 +162,15 @@ Why We Chose a Model-Centric Approach
 In this project we focused on a model-centric approach to improve performance. Since the dataset (FineTome) was predefined and limited, the most effective way to optimize the chatbot was to adjust how the model learns rather than collecting or engineering new data.
 
 We improved performance by tuning key aspects of the fine-tuning process, such as learning rate, number of training steps, batch size, LoRA configuration, and inference parameters (context length, temperature, max tokens, etc.). These adjustments allowed us to get better, more stable responses from the model without changing the dataset.
+
+There were threee main hyperparameters that we tested out:
+- Lora alpha: it rescales the update of the Lora mechanisms before adding it to the weights, a strong one can lead to instability while a low one would have a weak adaptation
+- Lora attention dimension: Adds more dimensions to the trainable matrices of Lora. A high one will have more capacity but will defeat the purpose of low-rank matrices of finetunning. A low number of dimensions would underfit.
+- Lora dropout: defines the dropout number of the Lora brances that would get dropped, it's a regularization method. A high value will lead to more regularization, slow convergence and prevents forgetting. A low one lads to a fast learning but can overfit in small datasets.
+
+Basic configuration:
+1) lora alpha = 16, r (lora attention dimensions) = 16, lora dropout = 0 (optimized for the notebook)
+2) lora alpha = 32, r (lora attention dimensions) = 16, lora dropout = 0 (optimized for the notebook)
+3) lora alpha = 16, r (lora attention dimensions) = 32, lora dropout = 0 (optimized for the notebook)
+4) lora alpha = 32, r (lora attention dimensions) = 32, lora dropout = 0 (optimized for the notebook)
+4) lora alpha & r (lora attention dimensions) on the best model, lora dropout = 0.05 (optimized for the notebook)
