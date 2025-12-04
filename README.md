@@ -39,6 +39,26 @@ Local LLaMA chatbot with a React frontend and FastAPI backend.
 - `GET /health` – quick status check
 - `POST /chat` – expects `{ "message": "...", "history": [] }` and returns the assistant answer plus updated history
 
+#### Conversation Context & History Handling
+
+Both backends keep an internal text buffer that represents the ongoing conversation, which is sent to the model on every turn.
+
+- **Local backend (`chatbot.py`)**:  
+  - The class `LLM_model` maintains a `history_str` attribute.  
+  - For each new user message, it appends  
+    `User: <message>\nAssistant: `  
+    to `history_str`, calls the model with that full string, and then appends the generated answer.  
+  - As long as `save_hist=True` (default in `chatbot.py`), the full dialogue history is preserved and the model can use previous turns as context. If `save_hist=False`, the history is cleared after each response, and every turn is effectively stateless.
+
+- **Hugging Face backend (`chatbot_hf.py`)**:  
+  - The `LLM_model` also maintains a `history_str`, but it is initialized with a system message that sets the assistant behavior (friendly KTH chatbot, conversational style, etc.).  
+  - On every turn it appends  
+    `User: <message>\nAssistant: `,  
+    calls the model with the accumulated `history_str`, then appends the answer.  
+  - There is no explicit toggle to disable history here; the conversation remains stateful for the lifetime of the Python process.
+
+In both cases, the **conversation is reset** when the backend process restarts (e.g., when you restart `uvicorn` or redeploy the container). The frontend sends each new message to `/chat`, and the backend uses its own internal `history_str` to give the model access to previous turns.
+
 #### Choosing Model Backend
 
 The FastAPI backend can use either:
