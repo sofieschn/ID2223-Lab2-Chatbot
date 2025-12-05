@@ -2,6 +2,8 @@
 
 Local LLaMA chatbot with a React frontend and FastAPI backend.
 
+Visit the deployed app: https://chatbot-sofieyair.app.cloud.cbh.kth.se/
+
 ## Running Locally
 
 ### Prerequisites
@@ -10,27 +12,72 @@ Local LLaMA chatbot with a React frontend and FastAPI backend.
 - Node.js 20+ and npm
 - (Optional) Docker and Docker Compose for containerized local development
 
-### Quick Start
+### Local Development Setup
 
-1. **Start the backend** (in one terminal):
+**Important**: For local development, use the **Hugging Face backend** (`LLM_BACKEND=hf`) and configure the frontend to connect to `localhost`.
+
+#### Step 1: Start the Backend (Terminal 1)
+
+1. Navigate to the backend directory:
    ```bash
    cd app
+   ```
+
+2. Create and activate a virtual environment:
+   ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
    pip install -r requirements.txt
+   ```
+
+4. **Set the backend to use Hugging Face model** and start the server:
+   ```bash
+   export LLM_BACKEND=hf
    uvicorn main:app --reload
    ```
+
    The backend will be available at `http://localhost:8000`
 
-2. **Start the frontend** (in another terminal):
+   **Note**: The first time you run this, the model files will be downloaded from Hugging Face Hub (this may take a few minutes). Subsequent runs will be faster.
+
+#### Step 2: Configure and Start the Frontend (Terminal 2)
+
+1. Navigate to the frontend directory:
    ```bash
    cd frontend
+   ```
+
+2. Install dependencies (if not already done):
+   ```bash
    npm install
+   ```
+
+3. **Configure the frontend to use localhost**:
+   
+   Open `frontend/src/App.tsx` and set:
+   ```ts
+   const USE_LOCAL_BACKEND = true;
+   ```
+
+4. Start the development server:
+   ```bash
    npm run dev
    ```
+
    The frontend will be available at `http://localhost:5173` (or the URL printed by Vite)
 
-3. **Open your browser** and navigate to the frontend URL. The chat interface will automatically connect to the backend.
+#### Step 3: Open the Application
+
+Open your browser and navigate to the frontend URL (typically `http://localhost:5173`). The chat interface will automatically connect to your local backend at `http://localhost:8000`.
+
+### Switching Between Local and Deployed Backend
+
+- **To use local backend**: Set `USE_LOCAL_BACKEND = true` in `frontend/src/App.tsx`
+- **To use deployed backend**: Set `USE_LOCAL_BACKEND = false` in `frontend/src/App.tsx` (or use the default KTH Cloud URL)
 
 ### Backend Configuration
 
@@ -68,7 +115,21 @@ The FastAPI backend can use either:
 
 This is controlled via the `LLM_BACKEND` environment variable:
 
-**Option 1: Local GGUF Model (Recommended for local development)**
+**For Local Development: Use Hugging Face Backend**
+
+```bash
+export LLM_BACKEND=hf
+cd app
+source .venv/bin/activate
+uvicorn main:app --reload
+```
+
+**Note**: The Hugging Face backend (`LLM_BACKEND=hf`) is recommended for local development as it matches the deployed environment. The model files will be downloaded automatically from Hugging Face Hub on first run.
+
+**Alternative: Local GGUF Model**
+
+If you have the model files locally and want to use them instead:
+
 ```bash
 export LLM_BACKEND=local
 cd app
@@ -76,23 +137,18 @@ source .venv/bin/activate
 uvicorn main:app --reload
 ```
 
-**Option 2: Hugging Face Model**
-```bash
-export LLM_BACKEND=hf
-# Optional: if repo is private (this one is public)
-# export HUGGINGFACE_HUB_TOKEN=hf_...your_token...
-cd app
-source .venv/bin/activate
-uvicorn main:app --reload
-```
-
-**Note**: For local development, the local model (`LLM_BACKEND=local`) is typically faster since it doesn't need to download files from Hugging Face. Make sure you have the model files in the `models/` directory:
+Make sure you have the model files in the `models/` directory:
 - `models/Llama-3.2-1B-Instruct-Q4_1.gguf`
 - `models/lora_adapter_q8_0.gguf` (optional, for LoRA adapters)
 
 ### Frontend Configuration
 
-The frontend automatically connects to `http://localhost:8000` by default. If your backend runs on a different port or host, you can configure it:
+The frontend backend URL is controlled by the `USE_LOCAL_BACKEND` flag in `frontend/src/App.tsx`:
+
+- **`USE_LOCAL_BACKEND = true`**: Connects to `http://localhost:8000/chat` (for local development)
+- **`USE_LOCAL_BACKEND = false`**: Uses the deployed backend URL (default: KTH Cloud)
+
+Alternatively, you can set the `VITE_API_URL` environment variable:
 
 1. Create a `.env` file in the `frontend/` directory:
    ```bash
